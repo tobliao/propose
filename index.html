@@ -6,6 +6,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <title>怡安 💕</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💕</text></svg>">
     
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
@@ -582,7 +583,7 @@
         const firebaseConfig = {
             apiKey: "AIzaSyCKGd9_pvMJkT_A6sKLihhNCjX0XA8lZvg",
             authDomain: "pros-6fa6e.firebaseapp.com",
-            databaseURL: "https://pros-6fa6e-default-rtdb.firebaseio.com",
+            databaseURL: "https://pros-6fa6e-default-rtdb.asia-southeast1.firebasedatabase.app",
             projectId: "pros-6fa6e",
             storageBucket: "pros-6fa6e.firebasestorage.app",
             messagingSenderId: "684584360952",
@@ -593,6 +594,16 @@
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
         const countsRef = database.ref('counts');
+        
+        // Debug: Check Firebase connection
+        console.log('🔥 Firebase initializing...');
+        database.ref('.info/connected').on('value', (snapshot) => {
+            if (snapshot.val() === true) {
+                console.log('✅ Firebase connected!');
+            } else {
+                console.log('❌ Firebase disconnected');
+            }
+        });
 
         // Initialize counts
         const STORAGE_KEY = 'yian_proposal_counts';
