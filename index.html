@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>怡安 💕</title>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Noto+Serif+TC:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --cream: #FFFFFF;
+            --blush: #FAFAFA;
+            --rose: #F5F5F5;
+            --dusty-rose: #C4A4A4;
+            --soft-gold: #B8A88A;
+            --warm-gray: #9A9A9A;
+            --deep-taupe: #4A4A4A;
+            --text-primary: #2D2D2D;
+            --text-secondary: #6B6B6B;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html {
+            font-size: 16px;
+        }
+
+        body {
+            font-family: 'Noto Serif TC', serif;
+            background: linear-gradient(180deg, var(--cream) 0%, var(--blush) 50%, var(--rose) 100%);
+            min-height: 100vh;
+            min-height: 100dvh;
+            color: var(--text-primary);
+            overflow-x: hidden;
+            padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+        }
+
+        .container {
+            max-width: 430px;
+            margin: 0 auto;
+            padding: 3rem 1.5rem 4rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            min-height: 100dvh;
+        }
+
+        /* Decorative elements */
+        .flourish {
+            width: 120px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--soft-gold), transparent);
+            margin: 1.5rem 0;
+            position: relative;
+        }
+
+        .flourish::before {
+            content: '♡';
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            background: #FFFFFF;
+            padding: 0 0.5rem;
+            color: var(--dusty-rose);
+            font-size: 0.9rem;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+            animation: fadeInDown 1s ease-out;
+        }
+
+        .name {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2.8rem;
+            font-weight: 300;
+            color: var(--deep-taupe);
+            letter-spacing: 0.3em;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            font-size: 1rem;
+            font-weight: 300;
+            color: var(--text-secondary);
+            letter-spacing: 0.15em;
+        }
+
+        /* Proposal message */
+        .message-section {
+            text-align: center;
+            margin: 1.5rem 0 2.5rem;
+            animation: fadeIn 1.2s ease-out 0.3s both;
+        }
+
+        .message {
+            font-size: 1.1rem;
+            font-weight: 300;
+            line-height: 2;
+            color: var(--text-primary);
+            letter-spacing: 0.05em;
+        }
+
+        .highlight {
+            color: var(--dusty-rose);
+            font-weight: 500;
+        }
+
+        /* Gift Cards */
+        .gifts-section {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            animation: fadeInUp 1s ease-out 0.6s both;
+        }
+
+        .gift-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 24px;
+            padding: 1.75rem;
+            box-shadow: 
+                0 4px 24px rgba(92, 80, 71, 0.08),
+                0 1px 3px rgba(92, 80, 71, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .gift-card:active {
+            transform: scale(0.98);
+        }
+
+        .gift-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .gift-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        .gift-icon.bag {
+            background: linear-gradient(135deg, #F5E6E0 0%, #E8D4CF 100%);
+        }
+
+        .gift-icon.drink {
+            background: linear-gradient(135deg, #E8EFE6 0%, #D4E2CF 100%);
+        }
+
+        .gift-title {
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            line-height: 1.4;
+        }
+
+        .gift-subtitle {
+            font-size: 0.8rem;
+            font-weight: 300;
+            color: var(--text-secondary);
+            margin-top: 0.25rem;
+        }
+
+        .gift-counter {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .count-display {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 3.5rem;
+            font-weight: 300;
+            color: var(--deep-taupe);
+            min-width: 80px;
+            text-align: center;
+            transition: transform 0.2s ease;
+        }
+
+        .count-display.bounce {
+            animation: bounce 0.3s ease;
+        }
+
+        .count-btn {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            border: none;
+            background: linear-gradient(135deg, var(--dusty-rose) 0%, #C49090 100%);
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 300;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 
+                0 4px 12px rgba(212, 165, 165, 0.4),
+                0 2px 4px rgba(212, 165, 165, 0.2);
+            transition: all 0.2s ease;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        .count-btn:active {
+            transform: scale(0.92);
+            box-shadow: 
+                0 2px 8px rgba(212, 165, 165, 0.3),
+                0 1px 2px rgba(212, 165, 165, 0.15);
+        }
+
+        .count-btn:disabled {
+            background: linear-gradient(135deg, #D4D0CD 0%, #C5C0BC 100%);
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+
+        /* Progress bar */
+        .progress-container {
+            margin-top: 1.25rem;
+            width: 100%;
+        }
+
+        .progress-bar {
+            height: 6px;
+            background: var(--blush);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--dusty-rose), var(--soft-gold));
+            border-radius: 3px;
+            transition: width 0.4s ease;
+        }
+
+        .progress-text {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-align: right;
+            margin-top: 0.5rem;
+            font-weight: 300;
+        }
+
+        /* Footer */
+        .footer {
+            margin-top: auto;
+            padding-top: 2rem;
+            text-align: center;
+            animation: fadeIn 1s ease-out 0.9s both;
+        }
+
+        .footer-text {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            font-weight: 300;
+            letter-spacing: 0.1em;
+        }
+
+        .hearts {
+            font-size: 1.2rem;
+            margin-top: 0.75rem;
+            letter-spacing: 0.5em;
+            color: var(--dusty-rose);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes bounce {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.15);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.6;
+            }
+        }
+
+        /* Confetti canvas */
+        #confetti {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        /* Confirmation Modal */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            padding: 1.5rem;
+        }
+
+        .modal-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-box {
+            background: white;
+            border-radius: 24px;
+            padding: 2rem 1.5rem;
+            max-width: 320px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+
+        .modal-overlay.show .modal-box {
+            transform: scale(1);
+        }
+
+        .modal-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .modal-title {
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .modal-message {
+            font-size: 0.9rem;
+            font-weight: 300;
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .modal-btn {
+            flex: 1;
+            padding: 0.875rem 1rem;
+            border-radius: 12px;
+            border: none;
+            font-family: 'Noto Serif TC', serif;
+            font-size: 0.95rem;
+            font-weight: 400;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .modal-btn.cancel {
+            background: var(--rose);
+            color: var(--text-secondary);
+        }
+
+        .modal-btn.cancel:active {
+            background: #EBEBEB;
+        }
+
+        .modal-btn.confirm {
+            background: linear-gradient(135deg, var(--dusty-rose) 0%, #B89494 100%);
+            color: white;
+        }
+
+        .modal-btn.confirm:active {
+            transform: scale(0.96);
+        }
+
+        /* Celebration overlay */
+        .celebration-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.95);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.5s ease;
+        }
+
+        .celebration-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .celebration-text {
+            font-size: 1.5rem;
+            font-weight: 300;
+            color: var(--deep-taupe);
+            text-align: center;
+            line-height: 2;
+            letter-spacing: 0.1em;
+        }
+
+        .celebration-heart {
+            font-size: 4rem;
+            margin-bottom: 2rem;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="confetti"></canvas>
+    
+    <!-- Confirmation Modal -->
+    <div class="modal-overlay" id="confirmModal">
+        <div class="modal-box">
+            <div class="modal-icon" id="modalIcon">🎁</div>
+            <h3 class="modal-title" id="modalTitle">確認兌換</h3>
+            <p class="modal-message" id="modalMessage">確定要兌換嗎？<br>兌換後無法恢復喔！</p>
+            <div class="modal-buttons">
+                <button class="modal-btn cancel" onclick="closeModal()">取消</button>
+                <button class="modal-btn confirm" onclick="confirmRedeem()">確定兌換</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="celebration-overlay" id="celebration">
+        <div class="celebration-heart">💕</div>
+        <p class="celebration-text">
+            已兌換 ♡
+        </p>
+    </div>
+
+    <div class="container">
+        <header class="header">
+            <h1 class="name">陳怡安</h1>
+            <p class="subtitle">To My Beloved</p>
+            <div class="flourish"></div>
+        </header>
+
+        <section class="message-section">
+            <p class="message">
+                親愛的怡安<br>
+                這是我對妳的承諾<br>
+                <span class="highlight">每一份禮物</span><br>
+                都是我愛妳的證明
+            </p>
+        </section>
+
+        <section class="gifts-section">
+            <!-- Luxury Bag Card -->
+            <div class="gift-card">
+                <div class="gift-header">
+                    <div class="gift-icon bag">👜</div>
+                    <div>
+                        <h3 class="gift-title">精品包包</h3>
+                        <p class="gift-subtitle">Luxurious Bag</p>
+                    </div>
+                </div>
+                <div class="gift-counter">
+                    <button class="count-btn" onclick="decrementCount('bag')" id="bag-btn">−</button>
+                    <span class="count-display" id="bag-count">1</span>
+                    <div style="width: 56px;"></div>
+                </div>
+                <div class="progress-container">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="bag-progress" style="width: 100%;"></div>
+                    </div>
+                    <p class="progress-text" id="bag-text">剩餘 1 / 1</p>
+                </div>
+            </div>
+
+            <!-- Drinks Card -->
+            <div class="gift-card">
+                <div class="gift-header">
+                    <div class="gift-icon drink">🧋</div>
+                    <div>
+                        <h3 class="gift-title">手搖飲料</h3>
+                        <p class="gift-subtitle">50嵐 · 迷客夏 · 青山</p>
+                    </div>
+                </div>
+                <div class="gift-counter">
+                    <button class="count-btn" onclick="decrementCount('drink')" id="drink-btn">−</button>
+                    <span class="count-display" id="drink-count">100</span>
+                    <div style="width: 56px;"></div>
+                </div>
+                <div class="progress-container">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="drink-progress" style="width: 100%;"></div>
+                    </div>
+                    <p class="progress-text" id="drink-text">剩餘 100 / 100</p>
+                </div>
+            </div>
+        </section>
+
+        <footer class="footer">
+            <p class="footer-text">Forever Yours</p>
+            <div class="hearts">♡ ♡ ♡</div>
+        </footer>
+    </div>
+
+    <script>
+        // ============================================
+        // 🔥 FIREBASE CONFIGURATION - REPLACE WITH YOUR OWN
+        // ============================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyCKGd9_pvMJkT_A6sKLihhNCjX0XA8lZvg",
+            authDomain: "pros-6fa6e.firebaseapp.com",
+            databaseURL: "https://pros-6fa6e-default-rtdb.firebaseio.com",
+            projectId: "pros-6fa6e",
+            storageBucket: "pros-6fa6e.firebasestorage.app",
+            messagingSenderId: "684584360952",
+            appId: "1:684584360952:web:5be692e76f3db7bec3d40d"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        const countsRef = database.ref('counts');
+
+        // Initialize counts
+        const STORAGE_KEY = 'yian_proposal_counts';
+        
+        let counts = {
+            bag: { current: 1, max: 1 },
+            drink: { current: 100, max: 100 }
+        };
+
+        // Load saved counts from Firebase (with localStorage fallback)
+        function loadCounts() {
+            // First load from localStorage for instant display
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if (saved) {
+                try {
+                    const parsed = JSON.parse(saved);
+                    counts.bag.current = parsed.bag ?? counts.bag.max;
+                    counts.drink.current = parsed.drink ?? counts.drink.max;
+                } catch (e) {
+                    console.log('Using default counts');
+                }
+            }
+            updateDisplay('bag');
+            updateDisplay('drink');
+
+            // Then sync with Firebase (cloud is source of truth)
+            countsRef.once('value')
+                .then((snapshot) => {
+                    const data = snapshot.val();
+                    if (data) {
+                        counts.bag.current = data.bag ?? counts.bag.max;
+                        counts.drink.current = data.drink ?? counts.drink.max;
+                        // Update localStorage to match cloud
+                        localStorage.setItem(STORAGE_KEY, JSON.stringify({
+                            bag: counts.bag.current,
+                            drink: counts.drink.current
+                        }));
+                        updateDisplay('bag');
+                        updateDisplay('drink');
+                    } else {
+                        // Initialize Firebase with current values if empty
+                        saveCounts();
+                    }
+                })
+                .catch((error) => {
+                    console.log('Firebase load error, using localStorage:', error);
+                });
+
+            // Listen for real-time updates
+            countsRef.on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    counts.bag.current = data.bag ?? counts.bag.max;
+                    counts.drink.current = data.drink ?? counts.drink.max;
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+                        bag: counts.bag.current,
+                        drink: counts.drink.current
+                    }));
+                    updateDisplay('bag');
+                    updateDisplay('drink');
+                }
+            });
+        }
+
+        // Save counts to Firebase and localStorage
+        function saveCounts() {
+            const data = {
+                bag: counts.bag.current,
+                drink: counts.drink.current
+            };
+            
+            // Save to localStorage (instant)
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+            
+            // Save to Firebase (cloud persistence)
+            countsRef.set(data)
+                .catch((error) => {
+                    console.log('Firebase save error:', error);
+                });
+        }
+
+        // Update display for a specific item
+        function updateDisplay(type) {
+            const count = counts[type];
+            const countEl = document.getElementById(`${type}-count`);
+            const progressEl = document.getElementById(`${type}-progress`);
+            const textEl = document.getElementById(`${type}-text`);
+            const btnEl = document.getElementById(`${type}-btn`);
+
+            countEl.textContent = count.current;
+            
+            const percentage = (count.current / count.max) * 100;
+            progressEl.style.width = `${percentage}%`;
+            textEl.textContent = `剩餘 ${count.current} / ${count.max}`;
+
+            // Disable button if count is 0
+            btnEl.disabled = count.current <= 0;
+
+            // Add bounce animation
+            countEl.classList.add('bounce');
+            setTimeout(() => countEl.classList.remove('bounce'), 300);
+        }
+
+        // Pending redemption type
+        let pendingRedeemType = null;
+
+        // Show confirmation modal
+        function decrementCount(type) {
+            if (counts[type].current > 0) {
+                pendingRedeemType = type;
+                
+                const modal = document.getElementById('confirmModal');
+                const icon = document.getElementById('modalIcon');
+                const title = document.getElementById('modalTitle');
+                const message = document.getElementById('modalMessage');
+                
+                if (type === 'bag') {
+                    icon.textContent = '👜';
+                    title.textContent = '兌換精品包包';
+                    message.innerHTML = '確定要兌換 <strong>精品包包</strong> 嗎？<br>兌換後無法恢復喔！';
+                } else {
+                    icon.textContent = '🧋';
+                    title.textContent = '兌換手搖飲料';
+                    message.innerHTML = '確定要兌換 <strong>手搖飲料</strong> 嗎？<br>兌換後無法恢復喔！';
+                }
+                
+                modal.classList.add('show');
+            }
+        }
+
+        // Close modal
+        function closeModal() {
+            document.getElementById('confirmModal').classList.remove('show');
+            pendingRedeemType = null;
+        }
+
+        // Confirm redemption
+        function confirmRedeem() {
+            if (pendingRedeemType && counts[pendingRedeemType].current > 0) {
+                counts[pendingRedeemType].current--;
+                updateDisplay(pendingRedeemType);
+                saveCounts();
+
+                // Haptic feedback on supported devices
+                if (navigator.vibrate) {
+                    navigator.vibrate(10);
+                }
+
+                // Check for celebration
+                checkCelebration();
+            }
+            closeModal();
+        }
+
+        // Celebration when bag reaches 0
+        function checkCelebration() {
+            if (counts.bag.current === 0) {
+                setTimeout(() => {
+                    document.getElementById('celebration').classList.add('show');
+                    startConfetti();
+                }, 500);
+            }
+        }
+
+        // Simple confetti animation
+        function startConfetti() {
+            const canvas = document.getElementById('confetti');
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            const particles = [];
+            const colors = ['#C4A4A4', '#B8A88A', '#D4C4C4', '#E8E0E0', '#D4B4B4'];
+
+            for (let i = 0; i < 100; i++) {
+                particles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height - canvas.height,
+                    r: Math.random() * 6 + 4,
+                    d: Math.random() * 100,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    tilt: Math.floor(Math.random() * 10) - 10,
+                    tiltAngle: 0,
+                    tiltAngleIncrement: Math.random() * 0.07 + 0.05
+                });
+            }
+
+            function draw() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                particles.forEach((p, i) => {
+                    ctx.beginPath();
+                    ctx.lineWidth = p.r;
+                    ctx.strokeStyle = p.color;
+                    ctx.moveTo(p.x + p.tilt + p.r, p.y);
+                    ctx.lineTo(p.x + p.tilt, p.y + p.tilt + p.r);
+                    ctx.stroke();
+                });
+
+                update();
+            }
+
+            function update() {
+                particles.forEach((p, i) => {
+                    p.tiltAngle += p.tiltAngleIncrement;
+                    p.y += (Math.cos(p.d) + 3 + p.r / 2) / 2;
+                    p.tilt = Math.sin(p.tiltAngle) * 15;
+
+                    if (p.y > canvas.height) {
+                        particles[i] = {
+                            ...p,
+                            x: Math.random() * canvas.width,
+                            y: -20,
+                            tilt: Math.floor(Math.random() * 10) - 10
+                        };
+                    }
+                });
+            }
+
+            let animationId;
+            function animate() {
+                draw();
+                animationId = requestAnimationFrame(animate);
+            }
+            animate();
+
+            // Stop after 5 seconds
+            setTimeout(() => {
+                cancelAnimationFrame(animationId);
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            }, 5000);
+        }
+
+        // Close celebration on tap
+        document.getElementById('celebration').addEventListener('click', function() {
+            this.classList.remove('show');
+        });
+
+        // Close modal when clicking outside
+        document.getElementById('confirmModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        // Initialize
+        loadCounts();
+
+        // Handle resize
+        window.addEventListener('resize', () => {
+            const canvas = document.getElementById('confetti');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+    </script>
+</body>
+</html>
